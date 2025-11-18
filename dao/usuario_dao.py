@@ -1,4 +1,3 @@
-import pyodbc
 from base_datos.conexion import obtener_conexion
 
 class UsuarioDAO:
@@ -34,3 +33,13 @@ class UsuarioDAO:
         self.cursor.execute(query)
         columnas = [column[0] for column in self.cursor.description]
         return [dict(zip(columnas, row)) for row in self.cursor.fetchall()]
+    
+    def eliminar_por_usuario(self, usuario):
+        query = "DELETE FROM Usuario WHERE usuario = ?"
+        self.cursor.execute(query, (usuario,))
+        self.conn.commit()
+    
+    def eliminar_por_id(self, id_usuario):
+        query = "DELETE FROM Usuario WHERE id = ?"
+        self.cursor.execute(query, (id_usuario,))
+        self.conn.commit()
