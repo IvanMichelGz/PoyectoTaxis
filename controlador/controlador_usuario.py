@@ -12,3 +12,17 @@ class ControladorUsuario:
 
     def obtener_todos(self):
         return self.dao.obtener_todos()
+    
+    def eliminar_por_usuario(self, usuario):
+        self.dao.eliminar_por_usuario(usuario)
+
+    # Si usas ID como clave primaria:
+    def eliminar_por_id(self, id_usuario):
+        self.dao.eliminar_por_id(id_usuario)
+        
+    def actualizar_usuario(self, datos):
+        self.dao.actualizar_usuario(datos)
+
+    # 🔄 Nuevo método para refrescar datos
+    def obtener_usuario_por_id(self, id_usuario):
+        return self.dao.obtener_usuario_por_id(id_usuario)

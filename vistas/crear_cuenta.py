@@ -1,6 +1,7 @@
 import flet as ft
 from datetime import date
 from controlador.controlador_usuario import ControladorUsuario
+from utilidades.enviar_correo import enviar_correo, correo_autorizado
 
 controlador_usuario = ControladorUsuario()
 
@@ -23,7 +24,6 @@ def crear_cuenta(page: ft.Page, menu_principal, iniciar_sesion, navegar_callback
     nombre_input = styled_input("Nombre completo", ft.Icons.PERSON)
     usuario_input = styled_input("Usuario", ft.Icons.ACCOUNT_BOX)
     pass_input = styled_input("Contraseña", ft.Icons.LOCK, password=True)
-
     fecha_nacimiento = styled_input("Fecha de nacimiento", ft.Icons.CALENDAR_MONTH)
     fecha_nacimiento.read_only = True
 
@@ -86,9 +86,23 @@ def crear_cuenta(page: ft.Page, menu_principal, iniciar_sesion, navegar_callback
                 "sexo": (sexo_dropdown.value),
                 "carrera": (carrera_input.value or "").strip()
             }
+
+            if not correo_autorizado(datos["correo"]):
+                mensaje.value = "❌ El correo no es válido o no está permitido"
+                page.update()
+                return
+
             controlador_usuario.crear_usuario(datos)
+
+            enviar_correo(
+                destinatario=datos["correo"],
+                remitente="ivanmichel07xdgz@gmail.com",
+                clave_app="TAXISUNI"  # Reemplaza con tu clave de aplicación real
+            )
+
             mensaje.value = "✅ Cuenta creada correctamente"
             page.update()
+
         except Exception as ex:
             mensaje.value = f"❌ Error al registrar: {ex}"
             page.update()
@@ -154,14 +168,14 @@ def crear_cuenta(page: ft.Page, menu_principal, iniciar_sesion, navegar_callback
 
     page.add(
         ft.Container(
-        content=ft.Column(
-            controls=[formulario],
-            scroll=ft.ScrollMode.AUTO,
-            expand=True,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER
-        ),
-        alignment=ft.alignment.center,
-        bgcolor=ft.Colors.WHITE,
-        expand=True
+            content=ft.Column(
+                controls=[formulario],
+                scroll=ft.ScrollMode.AUTO,
+                expand=True,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER
+            ),
+            alignment=ft.alignment.center,
+            bgcolor=ft.Colors.WHITE,
+            expand=True
+        )
     )
-)
