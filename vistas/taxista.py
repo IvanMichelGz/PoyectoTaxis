@@ -1,9 +1,12 @@
 import flet as ft
+from controlador.controlador_usuario import ControladorUsuario
 
 def taxista_view(page: ft.Page, datos: dict, volver_callback):
     page.clean()
 
-    # Datos del taxista
+    controlador = ControladorUsuario()
+
+    # Datos iniciales del taxista
     nombre = datos.get("nombre_alumno", "Taxista")
     placa = datos.get("placa", "Sin placa")
     telefono = datos.get("telefono", "Sin teléfono")
@@ -16,18 +19,50 @@ def taxista_view(page: ft.Page, datos: dict, volver_callback):
         page.snack_bar.open = True
         page.update()
 
-    # Menú hamburguesa
+    # 🔹 Vista de edición de perfil
+    def modificar_perfil(e):
+        page.clean()
+
+        nombre_field = ft.TextField(label="Nombre", value=nombre, width=300)
+        correo_field = ft.TextField(label="Correo", value=correo, width=300)
+        telefono_field = ft.TextField(label="Teléfono", value=telefono, width=300)
+        placa_field = ft.TextField(label="Placa", value=placa, width=300)
+        unidad_field = ft.TextField(label="Unidad", value=str(id_unidad), width=300)
+
+        def guardar_cambios(ev):
+            nuevos_datos = {
+                "id_usuario": datos["id_usuario"],
+                "nombre_alumno": nombre_field.value,
+                "correo": correo_field.value,
+                "telefono": telefono_field.value,
+                "placa": placa_field.value,
+                "id_unidad": unidad_field.value
+            }
+            controlador.actualizar_usuario(nuevos_datos)
+            mostrar_mensaje("✅ Perfil actualizado correctamente")
+            taxista_view(page, nuevos_datos, volver_callback)
+
+        page.add(
+            ft.Column([
+                ft.Text("✏️ Modificar perfil", size=24, weight=ft.FontWeight.BOLD),
+                nombre_field,
+                correo_field,
+                telefono_field,
+                placa_field,
+                unidad_field,
+                ft.Row([
+                    ft.ElevatedButton("💾 Guardar", on_click=guardar_cambios),
+                    ft.ElevatedButton("❌ Cancelar", on_click=lambda e: taxista_view(page, datos, volver_callback))
+                ], spacing=10)
+            ], spacing=15, alignment=ft.MainAxisAlignment.CENTER)
+        )
+
+    # 🔹 Menú hamburguesa
     menu = ft.PopupMenuButton(
         icon=ft.Icons.MENU,
         items=[
-            ft.PopupMenuItem(
-                text="✏️ Modificar perfil",
-                on_click=lambda e: mostrar_mensaje("Función en desarrollo")
-            ),
-            ft.PopupMenuItem(
-                text="🔙 Cerrar sesión",
-                on_click=lambda e: volver_callback(page)
-            )
+            ft.PopupMenuItem(text="✏️ Modificar perfil", on_click=modificar_perfil),
+            ft.PopupMenuItem(text="🔙 Cerrar sesión", on_click=lambda e: volver_callback(page))
         ]
     )
 
