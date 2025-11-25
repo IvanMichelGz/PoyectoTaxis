@@ -6,7 +6,7 @@ class UsuarioDAO:
         self.cursor = self.conn.cursor()
 
     # 🔹 Insertar nuevo usuario (flexible según rol)
-    def insert(self, datos):
+    def insertar(self, datos):
         query = """
             INSERT INTO dbo.Usuario (
                 nombre_alumno, usuario, password, rol,
@@ -47,6 +47,19 @@ class UsuarioDAO:
     def obtener_todos(self):
         query = "SELECT * FROM dbo.Usuario"
         self.cursor.execute(query)
+        columnas = [column[0] for column in self.cursor.description]
+        return [dict(zip(columnas, row)) for row in self.cursor.fetchall()]
+
+    # 🔹 Obtener usuarios por rol (estudiante, encargado, etc.)
+    def obtener_por_rol(self, rol: str):
+        equivalencias = {
+            "estudiante": "alumno",
+            "encargado": "encargado",
+            "conductor": "taxista"
+        }
+        rol_real = equivalencias.get(rol.lower(), rol.lower())
+        query = "SELECT * FROM dbo.Usuario WHERE rol = ?"
+        self.cursor.execute(query, (rol_real,))
         columnas = [column[0] for column in self.cursor.description]
         return [dict(zip(columnas, row)) for row in self.cursor.fetchall()]
 
